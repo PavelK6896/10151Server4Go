@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{{ .Title}}</title>
+</head>
+<body>
+<h1>{{ .Title}}</h1>
+<p>{{ .Message}}</p>
+
+<button onclick="post()">post</button>
+<button onclick="get()">get</button>
+<button onclick="delete1()">delete1</button>
+
+<ul>
+    {{range .Users}}
+    <li><b>{{ . }}</b></li>
+    {{end}}
+</ul>
+
+<div id="d1" class="div1"></div>
+
+<script>
+
+    function readResp(response) {
+        response.then(d => {
+            d.json().then(dd => {
+                let d1 = document.getElementById('d1');
+                d1.textContent = dd
+            })
+        })
+    }
+
+    function url() {
+        return 'http://localhost:8080/1';
+    }
+
+    const get = () => {
+        const response = fetch(url(), {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': '',
+                "Access-Control-Allow-Origin": "*"
+            }
+        });
+        readResp(response);
+    }
+
+    const post = () => {
+        const data = {
+            name: "Som"
+        }
+        const response = fetch(url(), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': ''
+            },
+            body: JSON.stringify(data)
+        });
+        readResp(response);
+    }
+
+    const delete1 = () => {
+        const data = {
+            name: "Som"
+        }
+        const response = fetch(url(), {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': ''
+            },
+            body: JSON.stringify(data)
+        });
+        readResp(response);
+    }
+
+</script>
+</body>
+</html>
