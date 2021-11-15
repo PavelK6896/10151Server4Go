@@ -7,26 +7,58 @@
 <body>
 <h1>{{ .Title}}</h1>
 <p>{{ .Message}}</p>
-
-<button onclick="post()">post</button>
-<button onclick="get()">get</button>
-<button onclick="delete1()">delete1</button>
-
 <ul>
     {{range .Users}}
     <li><b>{{ . }}</b></li>
     {{end}}
 </ul>
 
-<div id="d1" class="div1"></div>
+<button onclick="get()">get</button>
+<div>
+    <button onclick="post()">post</button>
+    <input type="text" id="input1"/>
+</div>
 
 <script>
 
     function readResp(response) {
         response.then(d => {
             d.json().then(dd => {
-                let d1 = document.getElementById('d1');
-                d1.textContent = dd
+                let elementById = document.getElementById('div1');
+                if (elementById != null) document.body.removeChild(elementById);
+                const div1 = document.createElement('div');
+                div1.setAttribute("id", "div1");
+                document.body.appendChild(div1)
+                console.log(dd)
+
+                if (Array.isArray(dd)) {
+                    dd.forEach(f => {
+                        const div = document.createElement('div');
+                        div.textContent = f.Name
+                        div1.appendChild(div);
+
+                        const button = document.createElement('button');
+                        button.onclick = () => {
+                            delete1(f.Name)
+                        }
+                        button.textContent = f.Id
+                        div.appendChild(button);
+
+                        const input = document.createElement('input');
+                        div.appendChild(input);
+
+                        const update = document.createElement('button');
+                        update.onclick = () => {
+                            put(input, f.Id)
+                        }
+                        update.textContent = 'update'
+                        div.appendChild(update);
+
+
+                    })
+                }
+
+
             })
         })
     }
@@ -48,8 +80,13 @@
     }
 
     const post = () => {
+        let input1 = document.getElementById('input1');
+        console.log(input1.value)
+        if (input1.value === '') {
+            return
+        }
         const data = {
-            name: "Som"
+            name: input1.value
         }
         const response = fetch(url(), {
             method: 'POST',
@@ -62,12 +99,44 @@
         readResp(response);
     }
 
-    const delete1 = () => {
+    const delete1 = (name) => {
+        const data = {
+            name: name
+        }
+        const response = fetch(url(), {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': ''
+            },
+            body: JSON.stringify(data)
+        });
+        readResp(response);
+    }
+
+    const put = (update, id) => {
+        console.log(update.value)
+        const data = {
+            name: update.value,
+            id: id
+        }
+        const response = fetch(url(), {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': ''
+            },
+            body: JSON.stringify(data)
+        });
+        readResp(response);
+    }
+
+    const patch = () => {
         const data = {
             name: "Som"
         }
         const response = fetch(url(), {
-            method: 'DELETE',
+            method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': ''
