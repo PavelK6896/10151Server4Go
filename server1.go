@@ -17,13 +17,21 @@ type ViewData struct {
 	Users   []User
 }
 type User struct {
-	Id   string
-	Name string
+	Id    int64
+	Name  string
+	Email string
+	State string
+	Code  string
+	Zip   int
 }
 
 type requestBody struct {
-	Id   string `json:"id"`
-	Name string `json:"name"`
+	Id    int64  `json:"id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
+	State string `json:"state"`
+	Code  string `json:"code"`
+	Zip   int    `json:"zip"`
 }
 
 var countryCapitalMap map[string]string
@@ -33,9 +41,9 @@ func main() {
 	countryCapitalMap := map[string]string{"France": "Paris", "Italy": "Rome", "Japan": "Tokyo", "India": "New Delhi"}
 	id := 3
 	fmt.Println(countryCapitalMap)
-	u1 := User{"1", "Bob"}
-	u2 := User{"2", "Jon"}
-	u3 := User{"3", "Fot"}
+	u1 := User{1, "Bob", "b@b", "N", "432", 104}
+	u2 := User{2, "Jon", "b@b", "M", "432", 123}
+	u3 := User{3, "Fot", "b@b", "D", "432", 423}
 
 	data := ViewData{
 		Title: "Users List",
@@ -82,7 +90,7 @@ func main() {
 			if is {
 				i := len(data.Users)
 				id++
-				newU := User{strconv.Itoa(i + 1 + id), params.Name}
+				newU := User{int64(id), params.Name, params.Email, params.State, strconv.Itoa(i + 1 + id), id + 100}
 				data.Users = append(data.Users, newU)
 			}
 
@@ -108,7 +116,7 @@ func main() {
 			fmt.Println(params)
 
 			for i, user := range data.Users {
-				if user.Name == params.Name {
+				if user.Id == params.Id {
 					data.Users = remove(data.Users, i)
 				}
 			}
@@ -135,7 +143,7 @@ func main() {
 			for i, user := range data.Users {
 				if user.Id == params.Id {
 					data.Users = remove(data.Users, i)
-					newU := User{user.Id, params.Name}
+					newU := User{user.Id, params.Name, params.Email, params.State, params.Code, params.Zip}
 					data.Users = append(data.Users, newU)
 				}
 			}
@@ -160,6 +168,12 @@ func main() {
 			}
 			fmt.Println(params)
 
+			for i, user := range data.Users {
+				if user.Id == params.Id {
+					data.Users[i].Zip = params.Zip
+				}
+			}
+
 			if responseJson(w, err, data) {
 				return
 			}
@@ -183,10 +197,10 @@ func remove(s []User, i int) []User {
 
 func responseJson(w http.ResponseWriter, err error, data ViewData) bool {
 	sort.SliceStable(data.Users, func(i, j int) bool {
-		parseInt1, _ := strconv.ParseInt(data.Users[i].Id, 10, 32)
-		parseInt2, _ := strconv.ParseInt(data.Users[j].Id, 10, 32)
+		//parseInt1, _ := strconv.ParseInt(data.Users[i].Id, 10, 32)
+		//parseInt2, _ := strconv.ParseInt(data.Users[j].Id, 10, 32)
 
-		return parseInt1 < parseInt2
+		return data.Users[i].Id < data.Users[j].Id
 	})
 
 	js, err := json.Marshal(data.Users)

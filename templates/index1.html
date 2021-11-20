@@ -14,7 +14,7 @@
 </ul>
 
 <button onclick="get()">get</button>
-<div>
+<div style="margin: 25px">
     <button onclick="post()">post</button>
     <input type="text" id="input1"/>
 </div>
@@ -26,33 +26,53 @@
             d.json().then(dd => {
                 let elementById = document.getElementById('div1');
                 if (elementById != null) document.body.removeChild(elementById);
-                const div1 = document.createElement('div');
-                div1.setAttribute("id", "div1");
-                document.body.appendChild(div1)
+                const divMain = document.createElement('div');
+                divMain.setAttribute("id", "div1");
+                document.body.appendChild(divMain)
                 console.log(dd)
 
                 if (Array.isArray(dd)) {
                     dd.forEach(f => {
                         const div = document.createElement('div');
-                        div.textContent = f.Name
-                        div1.appendChild(div);
 
+                        div.setAttribute("style", "margin: 5px;");
+                        div.textContent = f.Id + ' ' + f.Name + ' ' + f.Code + ' ' + f.Zip
+                        divMain.appendChild(div);
+
+                        const div2 = document.createElement('div2');
+                        div2.setAttribute("style", "margin: 5px;");
+                        divMain.appendChild(div2);
+
+                        //delete
                         const button = document.createElement('button');
                         button.onclick = () => {
-                            delete1(f.Name)
+                            delete1(f.Id)
                         }
-                        button.textContent = f.Id
-                        div.appendChild(button);
+                        button.innerHTML = '&#10006;'
+                        div2.appendChild(button);
 
+                        //put
                         const input = document.createElement('input');
-                        div.appendChild(input);
+                        div2.appendChild(input);
 
                         const update = document.createElement('button');
                         update.onclick = () => {
-                            put(input, f.Id)
+                            put(input, f)
                         }
                         update.textContent = 'update'
-                        div.appendChild(update);
+                        div2.appendChild(update);
+
+                        //patch
+                        const inputP = document.createElement('input');
+                        inputP.setAttribute("type", "number");
+                        div2.appendChild(inputP);
+
+                        const updateP = document.createElement('button');
+                        updateP.onclick = () => {
+                            patch1(inputP, f)
+                        }
+                        updateP.textContent = 'patch zip'
+                        div2.appendChild(updateP);
 
 
                     })
@@ -85,8 +105,13 @@
         if (input1.value === '') {
             return
         }
-        const data = {
-            name: input1.value
+        const params = {
+            id: 0,
+            name: input1.value,
+            email: input1.value + '@m',
+            state: input1.value.substr(0, 1).toUpperCase(),
+            code: "0",
+            zip: 0
         }
         const response = fetch(url(), {
             method: 'POST',
@@ -94,14 +119,15 @@
                 'Content-Type': 'application/json',
                 'Authorization': ''
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify(params)
         });
+        input1.value = ''
         readResp(response);
     }
 
-    const delete1 = (name) => {
-        const data = {
-            name: name
+    const delete1 = (id) => {
+        const params = {
+            id: id
         }
         const response = fetch(url(), {
             method: 'DELETE',
@@ -109,16 +135,20 @@
                 'Content-Type': 'application/json',
                 'Authorization': ''
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify(params)
         });
         readResp(response);
     }
 
-    const put = (update, id) => {
-        console.log(update.value)
-        const data = {
-            name: update.value,
-            id: id
+    const put = (input, data) => {
+        console.log(input.value)
+        const params = {
+            id: data.Id,
+            name: input.value,
+            email: input.value + '@m',
+            state: input.value.substr(0, 1).toUpperCase(),
+            code: data.Code,
+            zip: data.Zip
         }
         const response = fetch(url(), {
             method: 'PUT',
@@ -126,14 +156,15 @@
                 'Content-Type': 'application/json',
                 'Authorization': ''
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify(params)
         });
         readResp(response);
     }
 
-    const patch = () => {
-        const data = {
-            name: "Som"
+    const patch1 = (inputP, data) => {
+        const params = {
+            id: data.Id,
+            zip: +inputP.value,
         }
         const response = fetch(url(), {
             method: 'PATCH',
@@ -141,7 +172,7 @@
                 'Content-Type': 'application/json',
                 'Authorization': ''
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify(params)
         });
         readResp(response);
     }
